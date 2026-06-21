@@ -7,24 +7,30 @@ topology:
     edge-router: # R1
       kind: ceos
       image: ceos:latest
+
+# --- Cisco IOS ---
     core-1: # CSW 1
-      kind: ceos
-      image: ceos:latest
+      kind: vr-ios
+      image: vrnetlab/vr-ios:latest
     core-2: # CSW 2
-      kind: ceos
-      image: ceos:latest
+      kind: vr-ios
+      image: vrnetlab/vr-ios:latest
+
+# --- Nokia SR Linux ---
     dist-1: # DSW-A1
-      kind: ceos
-      image: ceos:latest
+      kind: srl
+      image: ghcr.io/nokia/srlinux:latest
     dist-2: # DSW-A2
-      kind: ceos
-      image: ceos:latest
+      kind: srl
+      image: ghcr.io/nokia/srlinux:latest
     dist-3: # DSW-B1
-      kind: ceos
-      image: ceos:latest
+      kind: srl
+      image: ghcr.io/nokia/srlinux:latest
     dist-4: # DSW-B2
-      kind: ceos
-      image: ceos:latest
+      kind: srl
+      image: ghcr.io/nokia/srlinux:latest
+
+# --- Arista cEOS ---
     access-1: # ASW-A1
       kind: ceos
       image: ceos:latest
@@ -43,9 +49,10 @@ topology:
     access-6: # ASW-B3
       kind: ceos
       image: ceos:latest
+
   links:
     - endpoints: ["edge-router:eth1", "macvlan:enx00e04c36097c"] # R1 to P_Site
-#    - endpoints: ["edge-router:eth2", "macvlan:???????"] (second connection to same the site, requres second physical NIC) 
+#   - endpoints: ["edge-router:eth2", "macvlan:???????"] (second connection to same the site, requres second physical NIC) 
 
     - endpoints: ["edge-router:eth3", "core-1:eth1"] # R1 to CSW 1
     - endpoints: ["edge-router:eth4", "core-2:eth1"] # R1 to CSW 2
@@ -53,18 +60,37 @@ topology:
     - endpoints: ["core-1:eth2", "core-2:eth2"] # CSW 1 to CSW 2 (channel-group 1)
     - endpoints: ["core-1:eth3", "core-2:eth3"] # CSW 1 to CSW 2 (channel-group 1)
 
-    - endpoints: ["core-1:eth4", "dist-1:eth1"] # CSW 1 to DSW-A1
-    - endpoints: ["core-1:eth5", "dist-2:eth1"] # CSW 1 to DSW-A2
-    - endpoints: ["core-1:eth6", "dist-3:eth1"] # CSW 1 to DSW-B1
-    - endpoints: ["core-1:eth7", "dist-4:eth1"] # CSW 1 to DSW-B2
+# --- Core to Distribution---
+    - endpoints: ["core-1:eth4", "dist-1:e1-1"] # CSW 1 to DSW-A1
+    - endpoints: ["core-1:eth5", "dist-2:e1-1"] # CSW 1 to DSW-A2
+    - endpoints: ["core-1:eth6", "dist-3:e1-1"] # CSW 1 to DSW-B1
+    - endpoints: ["core-1:eth7", "dist-4:e1-1"] # CSW 1 to DSW-B2
 
-    - endpoints: ["core-2:eth4", "dist-1:eth2"] # CSW 2 to DSW-A1
-    - endpoints: ["core-2:eth5", "dist-2:eth2"] # CSW 2 to DSW-A2
-    - endpoints: ["core-2:eth6", "dist-3:eth2"] # CSW 2 to DSW-B1
-    - endpoints: ["core-2:eth7", "dist-4:eth2"] # CSW 2 to DSW-B2
+    - endpoints: ["core-2:eth4", "dist-1:e1-2"] # CSW 2 to DSW-A1
+    - endpoints: ["core-2:eth5", "dist-2:e1-2"] # CSW 2 to DSW-A2
+    - endpoints: ["core-2:eth6", "dist-3:e1-2"] # CSW 2 to DSW-B1
+    - endpoints: ["core-2:eth7", "dist-4:e1-2"] # CSW 2 to DSW-B2
 
-    - endpoints: ["dist-1:eth3", "dist-2:eth3"] # DSW-A1 to DSW-A2 (channel-group 2)
-    - endpoints: ["dist-1:eth4", "dist-2:eth4"] # DSW-A1 to DSW-A2 (channel-group 2)
+# --- Distribution Peer Links---
+    - endpoints: ["dist-1:e1-3", "dist-2:e1-3"] # DSW-A1 to DSW-A2 (channel-group 2)
+    - endpoints: ["dist-1:e1-4", "dist-2:e1-4"] # DSW-A1 to DSW-A2 (channel-group 2)
 
-    - endpoints: ["dist-3:eth3", "dist-4:eth3"] # DSW-B1 to DSW-B2 (channel-group 3)
-    - endpoints: ["dist-3:eth4", "dist-4:eth4"] # DSW-B1 to DSW-B2 (channel-group 3)
+    - endpoints: ["dist-3:e1-3", "dist-4:e1-3"] # DSW-B1 to DSW-B2 (channel-group 3)
+    - endpoints: ["dist-3:e1-4", "dist-4:e1-4"] # DSW-B1 to DSW-B2 (channel-group 3)
+
+ # --- Distribution to Access---
+    - endpoints: ["dist-1:e1-5", "access-1:eth1"] # DSW-A1 to ASW-A1
+    - endpoints: ["dist-1:e1-6", "access-2:eth1"] # DSW-A1 to ASW-A2
+    - endpoints: ["dist-1:e1-7", "access-3:eth1"] # DSW-A1 to ASW-A3
+
+    - endpoints: ["dist-2:e1-5", "access-1:eth2"] # DSW-A2 to ASW-A1
+    - endpoints: ["dist-2:e1-6", "access-2:eth2"] # DSW-A2 to ASW-A2
+    - endpoints: ["dist-2:e1-7", "access-3:eth2"] # DSW-A2 to ASW-A3
+
+    - endpoints: ["dist-3:e1-5", "access-4:eth1"] # DSW-B1 to ASW-B1
+    - endpoints: ["dist-3:e1-6", "access-5:eth1"] # DSW-B1 to ASW-B2
+    - endpoints: ["dist-3:e1-7", "access-6:eth1"] # DSW-B1 to ASW-B3
+
+    - endpoints: ["dist-4:e1-5", "access-4:eth2"] # DSW-B2 to ASW-B1
+    - endpoints: ["dist-4:e1-6", "access-5:eth2"] # DSW-B2 to ASW-B2
+    - endpoints: ["dist-4:e1-7", "access-6:eth2"] # DSW-B2 to ASW-B3
