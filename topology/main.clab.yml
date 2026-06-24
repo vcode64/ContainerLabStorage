@@ -8,15 +8,13 @@ topology:
       kind: ceos
       image: ceos:latest
 
-# --- Cisco IOS ---
     core-1: # CSW 1
-      kind: vr-ios
-      image: vrnetlab/vr-ios:latest
+      kind: srl
+      image: ghcr.io/nokia/srlinux:latest
     core-2: # CSW 2
-      kind: vr-ios
-      image: vrnetlab/vr-ios:latest
+      kind: srl
+      image: ghcr.io/nokia/srlinux:latest
 
-# --- Nokia SR Linux ---
     dist-1: # DSW-A1
       kind: srl
       image: ghcr.io/nokia/srlinux:latest
@@ -30,7 +28,6 @@ topology:
       kind: srl
       image: ghcr.io/nokia/srlinux:latest
 
-# --- Arista cEOS ---
     access-1: # ASW-A1
       kind: ceos
       image: ceos:latest
